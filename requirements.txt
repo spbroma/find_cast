@@ -1,0 +1,6 @@
+numpy==1.22.2
+matplotlib==3.5.1
+pandas==1.4.1
+scipy==1.8.0
+click==8.0.4
+facenet_pytorch==2.5.2
