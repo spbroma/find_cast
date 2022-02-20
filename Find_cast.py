@@ -92,7 +92,10 @@ def find_nn(dump, trg, n=10):
     res_dir = './output'
     if not os.path.exists(res_dir):
         os.mkdir(res_dir)
-    fname = f'{res_dir}/result_by_{trg.name.split(".")[0]}.png'
+    print(trg.name)
+    name = trg.name.replace('\\', '/').split('/')[-1].split(".")[0]
+    print(name)
+    fname = f'{res_dir}/result_by_{name}.png'
     plt.savefig(fname)
     plt.show()
 
@@ -137,7 +140,7 @@ def download_from_gdrive(id, destination):
     if token:
         params = { 'id' : id, 'confirm' : token }
         response = session.get(URL, params = params, stream = True)
-    save_content(response, destination)    
+    save_content(response, destination)
 
 def get_token(response):
     for key, value in response.cookies.items():
@@ -155,7 +158,7 @@ def save_content(response, destination):
                 f.write(chunk)
 
 def_token = '1Ho4nnoetBUvSff98H4lmO7tRAo95EK7m'
-def_img = 'pitt_2.jfif'
+def_img = 'input/pitt_2.jfif'
 @click.command()
 @click.option('-dump', default=def_token, help='Name embedding dump.')
 @click.option('-img', default=def_img, help='Path to image.')
