@@ -23,6 +23,6 @@ Embedding use [FaceNet](https://pypi.org/project/facenet-pytorch/), database rus
 
 ## Example
 ```cmd
-python Find_cast.py -img input\putin_1.jpg -n 31
+python Find_cast.py -img input\elvis.jpg -n 31
 ```
-![example](output/result_by_putin_1.png)
+![example](output/result_by_elvis.png)

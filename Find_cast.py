@@ -92,9 +92,7 @@ def find_nn(dump, trg, n=10):
     res_dir = './output'
     if not os.path.exists(res_dir):
         os.mkdir(res_dir)
-    print(trg.name)
     name = trg.name.replace('\\', '/').split('/')[-1].split(".")[0]
-    print(name)
     fname = f'{res_dir}/result_by_{name}.png'
     plt.savefig(fname)
     plt.show()
