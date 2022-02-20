@@ -3,6 +3,8 @@
 Do you need find russian actor to remake Fight Club? 
 This is your solution to find cast most similar with original. 
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1nTCNVoGHGBdOtS8B4WIYH1348LmVe71n#scrollTo=IoRdR6G_R6fz)
+
 ## Installation
 
 ```
