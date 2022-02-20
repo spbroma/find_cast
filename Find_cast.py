@@ -23,7 +23,7 @@ def init_img(fpath, mtcnn, resnet):
     Crops and scale image, calculate embedding.
     Returns embedding and cropped img.
     """
-    imgdir='./Data'
+    imgdir='./data'
     if not os.path.exists(imgdir):
         os.mkdir(imgdir)
     # Image loading and preprocessing
