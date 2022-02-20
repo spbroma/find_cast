@@ -5,13 +5,17 @@ This is your solution to find cast most similar with original.
 
 ## Installation
 
+```
 git clone https://github.com/spbroma/find_cast
 pip install -r requirements.txt
+```
 
-## Usage
+## Run
 
+```
 python Find_cast.py --help
 python Find_cast.py -img *Path_to_img* -dump *Path_to_embdump* -n *Num_of_actors*
+```
 
 ## Architecture
 
