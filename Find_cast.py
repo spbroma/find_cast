@@ -85,7 +85,7 @@ def find_nn(dump, trg, n=10):
         img = download_by_idx(idx)
 
         plt.subplot(n_col, n_row, i+2)
-        plt.title(f'ID{idx}',fontdict = {'fontsize' : fsize}, pad=2)
+        plt.title(f'ID {idx}',fontdict = {'fontsize' : fsize}, pad=2)
         plt.imshow(img)
         plt.axis('off')
 
