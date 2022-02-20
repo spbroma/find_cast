@@ -48,7 +48,7 @@ def init_img(fpath, mtcnn, resnet):
 
 
 def find_nn(dump, trg, n=10):
-    """Finds Nearest Neighbot"""
+    """Finds Nearest Neighbours by KDtree"""
     # KDtree initialization
     emb = np.vstack(dump.embedding)
     count = 0
@@ -127,10 +127,37 @@ def get_distance(a, b):
     b = np.array(b)
     return np.sqrt(np.sum(np.power(a - b, 2)))
 
-def_dump = 'russian_actors_facenet_embeddings_27085.pkl'
+def download_from_gdrive(id, destination):
+    URL = "https://docs.google.com/uc?export=download"
+
+    session = requests.Session()
+
+    response = session.get(URL, params = { 'id' : id }, stream = True)
+    token = get_token(response)
+    if token:
+        params = { 'id' : id, 'confirm' : token }
+        response = session.get(URL, params = params, stream = True)
+    save_content(response, destination)    
+
+def get_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+
+    return None
+
+def save_content(response, destination):
+    CHUNK_SIZE = 32768
+
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(CHUNK_SIZE):
+            if chunk: # filter out keep-alive new chunks
+                f.write(chunk)
+
+def_token = '1Ho4nnoetBUvSff98H4lmO7tRAo95EK7m'
 def_img = 'pitt_2.jfif'
 @click.command()
-@click.option('-dump', default=def_dump, help='Name embedding dump.')
+@click.option('-dump', default=def_token, help='Name embedding dump.')
 @click.option('-img', default=def_img, help='Path to image.')
 @click.option('-n', default=30, help='Required number of actor.')
 def main(dump, img, n = 10):
@@ -138,6 +165,11 @@ def main(dump, img, n = 10):
     Finds N target neighbors by embeding dump
     """
     # Initialize embedings and img
+    if not'.pkl' in dump:   # Google drive token as arg
+        def_dump = 'russian_actors_facenet_embeddings.pkl'
+        if not os.path.exists(def_dump):
+            download_from_gdrive(dump,def_dump)
+        dump = def_dump
     dump = pd.read_pickle(dump)
     
     mtcnn = MTCNN(image_size=150, margin=10)
