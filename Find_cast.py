@@ -9,6 +9,7 @@ import click
 from facenet_pytorch import MTCNN, InceptionResnetV1
 from scipy.spatial import KDTree, SphericalVoronoi
 
+plt.ion()
 
 class Target:
     """
@@ -17,6 +18,14 @@ class Target:
     name = ''
     img = []
     emb = []
+
+def get_output_path(fname, postfix = ''):
+    res_dir = './output'
+    if not os.path.exists(res_dir):
+        os.mkdir(res_dir)
+    name = fname.replace('\\', '/').split('/')[-1].split(".")[0]
+    fname_out = f'{res_dir}/{name}_{postfix}.jpg'
+    return fname_out
 
 def init_img(fpath, mtcnn, resnet):
     """
@@ -28,23 +37,61 @@ def init_img(fpath, mtcnn, resnet):
         os.mkdir(imgdir)
     # Image loading and preprocessing
     img = Image.open(fpath)
+
+
     img_cropped = mtcnn(img)
 
-    # Calc embedding
-    img_embedding = resnet(img_cropped.unsqueeze(0))
-    img_embedding = img_embedding.squeeze().detach().numpy()
-    # Image rescale
-    img_cropped = img_cropped.permute(1,2,0).numpy()
-    img_cropped = (img_cropped + 1) / 2
+    if img_cropped == None:
+        plt.figure()
+        plt.imshow(img)
+        plt.xticks([]);  plt.yticks([])
+        fname_out = get_output_path(fpath, 'detect')
+        plt.savefig(fname_out)
+        plt.show(block=True)
 
-    box = np.round(mtcnn.detect(img)[0][0]).astype(np.int32)
-    box_x = [box[0], box[2], box[2], box[0], box[0]]
-    box_y = [box[1], box[1], box[3], box[3], box[1]]
-    x0, x1 = box[0], box[2]
-    y0, y1 = box[1], box[3]
+        print('No face found')
 
-    img_cropped_rescale = np.array(img)[y0:y1, x0:x1]
-    return img_embedding, img_cropped_rescale
+        status = 0
+        img_embedding, img_cropped_rescale = [], []
+
+    else:
+
+        # Calc embedding
+        img_embedding = resnet(img_cropped.unsqueeze(0))
+        img_embedding = img_embedding.squeeze().detach().numpy()
+        # Image rescale
+        img_cropped = img_cropped.permute(1,2,0).numpy()
+        img_cropped = (img_cropped + 1) / 2
+
+        box = np.round(mtcnn.detect(img)[0][0]).astype(np.int32)
+        box_x = [box[0], box[2], box[2], box[0], box[0]]
+        box_y = [box[1], box[1], box[3], box[3], box[1]]
+        x0, x1 = box[0], box[2]
+        y0, y1 = box[1], box[3]
+
+        img_cropped_rescale = np.array(img)[y0:y1, x0:x1]
+
+
+        plt.figure()
+        plt.subplot(1,3,1)
+        plt.imshow(img)
+        plt.xticks([]);  plt.yticks([])
+
+        plt.subplot(1,3,2)
+        plt.imshow(img)
+        plt.plot(box_x, box_y, 'r', lw=2)
+        plt.xticks([]);  plt.yticks([])
+
+        plt.subplot(1,3,3)
+        plt.imshow(img_cropped_rescale)
+        plt.xticks([]);  plt.yticks([])
+        fname_out = get_output_path(fpath, 'detect')
+        plt.savefig(fname_out)
+        plt.show()
+
+        status = 1
+
+    return img_embedding, img_cropped_rescale, status
 
 
 def find_nn(dump, trg, n=10):
@@ -89,11 +136,7 @@ def find_nn(dump, trg, n=10):
         plt.imshow(img)
         plt.axis('off')
 
-    res_dir = './output'
-    if not os.path.exists(res_dir):
-        os.mkdir(res_dir)
-    name = trg.name.replace('\\', '/').split('/')[-1].split(".")[0]
-    fname = f'{res_dir}/result_by_{name}.png'
+    fname = get_output_path(trg.name, 'output')
     plt.savefig(fname)
     plt.show()
 
@@ -156,7 +199,9 @@ def save_content(response, destination):
                 f.write(chunk)
 
 def_token = '1Ho4nnoetBUvSff98H4lmO7tRAo95EK7m'
-def_img = 'input/pitt_2.jfif'
+def_img = 'input/16454637998023702618065703043527.jpg'
+# def_img = 'input/pitt_2.jfif'
+
 @click.command()
 @click.option('-dump', default=def_token, help='Name embedding dump.')
 @click.option('-img', default=def_img, help='Path to image.')
@@ -172,13 +217,14 @@ def main(dump, img, n = 10):
             download_from_gdrive(dump,def_dump)
         dump = def_dump
     dump = pd.read_pickle(dump)
-    
+
     mtcnn = MTCNN(image_size=150, margin=10)
     resnet = InceptionResnetV1(pretrained='vggface2').eval()
     trg = Target()
     trg.name = img
-    trg.emb, trg.img = init_img(trg.name, mtcnn, resnet)
-    find_nn(dump, trg, n)
+    trg.emb, trg.img, status = init_img(trg.name, mtcnn, resnet)
+    if status:
+        find_nn(dump, trg, n)
 
 if __name__ == '__main__':
     main()
