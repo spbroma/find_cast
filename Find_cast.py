@@ -199,8 +199,7 @@ def save_content(response, destination):
                 f.write(chunk)
 
 def_token = '1Ho4nnoetBUvSff98H4lmO7tRAo95EK7m'
-def_img = 'input/16454637998023702618065703043527.jpg'
-# def_img = 'input/pitt_2.jfif'
+def_img = 'input/pitt_2.jfif'
 
 @click.command()
 @click.option('-dump', default=def_token, help='Name embedding dump.')
